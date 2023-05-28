@@ -15,6 +15,10 @@ app.get("/",(req,res) => {
     console.log(JSON.stringify(req.query));
     res.status(200).send("Hello world");
 })
+
+app.get("/file",(req,res) => {
+    res.sendFile("./index.html");
+})
 app.post("/",async (req,res) => {
         const data = await getData("https://jsonplaceholder.typicode.com/users/1");
         const resp = {

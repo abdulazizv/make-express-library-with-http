@@ -1,7 +1,8 @@
 const http = require('http');
 const url = require('url');
 const querystring = require('querystring');
-
+const fs = require('fs');
+const path = require('path');
 function express() {
     const app = {
         routes: [],
@@ -77,6 +78,21 @@ function express() {
                                     res.end(responseBody);
                                 };
 
+                                res.sendFile = async (filePath) => {
+                                    const contentType = getContentType(path.extname(filePath));
+
+                                    res.setHeader('Content-Type', contentType);
+                                    res.statusCode = 200;
+
+                                    try {
+                                        const fileStream = fs.createReadStream(filePath);
+                                        fileStream.pipe(res);
+                                    } catch (error) {
+                                        res.statusCode = 500;
+                                        res.send('Error reading file');
+                                    }
+                                };
+
                                 res.json = (body) => {
                                     if (typeof body === 'object') {
                                         res.setHeader('Content-Type', 'application/json');
@@ -128,5 +144,20 @@ function matchPath(routePath, pathname) {
 
     return { match: true, params };
 }
+
+function getContentType(ext) {
+    const contentTypeMap = {
+        '.html': 'text/html',
+        '.css': 'text/css',
+        '.js': 'text/javascript',
+        '.json': 'application/json',
+        '.png': 'image/png',
+        '.jpg': 'image/jpeg',
+        '.txt': 'text/plain',
+    };
+
+    return contentTypeMap[ext] || 'application/octet-stream';
+}
+
 module.exports = express;
 
