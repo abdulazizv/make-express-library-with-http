@@ -25,6 +25,7 @@ function express() {
                 const {pathname} = url.parse(req.url, true);
                 const parsedUrl = url.parse(req.url, true);
                 req.query = parsedUrl.query;
+                req.headers = req.headers;
 
                 let requestBody = '';
 
@@ -76,13 +77,18 @@ function express() {
                                     res.end(responseBody);
                                 };
 
-                                // const { pathname } = parsedUrl;
-                                // const routeParams = extractParams(route.path, pathname);
-                                // if (routeParams) {
-                                //     req.params = routeParams;
-                                // } else {
-                                //     req.params = {};
-                                // }
+                                res.json = (body) => {
+                                    if (typeof body === 'object') {
+                                        res.setHeader('Content-Type', 'application/json');
+                                        responseBody = JSON.stringify(body);
+                                    } else {
+                                        res.setHeader('Content-Type', 'text/plain');
+                                        responseBody = body;
+                                    }
+
+                                    res.statusCode = statusCode;
+                                    res.end(responseBody);
+                                }
 
                                 route.handler(req, res);
                             }

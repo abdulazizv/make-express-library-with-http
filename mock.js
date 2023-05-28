@@ -11,6 +11,7 @@ const getData = async (url) => {
 
 // app.use(() => {})
 app.get("/",(req,res) => {
+    console.log(req.headers);
     console.log(JSON.stringify(req.query));
     res.status(200).send("Hello world");
 })
@@ -24,22 +25,22 @@ app.post("/",async (req,res) => {
 })
 app.put("/",(req,res) => {
     const requestBody = req.body;
-    res.send(requestBody);
+    res.json(requestBody);
 })
 app.delete("/users/:id",(req,res) => {
     const userId = req.params.id;
     res.send(`Your user id is ${userId}`);
 })
 app.listen(PORT,() => {
-    console.log("Server running at 3000 port")
+    console.log(`Server running at ${PORT}`);
 });
 /*
 req.body worked ✅
 req.params worked ✅
 req.query worked ✅
-req.headers
+req.headers worked ✅
  */
-// res.send("")
-// res.json([])
-// res.status(200).json({});
+// res.send("") worked ✅
+// res.json([]) worked ✅
+// res.status(200).json({}); worked ✅
 // res.sendFile(path)
