@@ -19,10 +19,16 @@ app.post("/",async (req,res) => {
             status:"OK",
             user:data
         }
-        res.send(JSON.stringify(data))
+        res.send(resp)
 })
-// app.put("/",(req,res) => {})
-// app.delete("/",(req,res) => {})
+app.put("/",(req,res) => {
+    const requestBody = req.body;
+    res.send(requestBody)
+})
+app.delete("/users/:id",(req,res) => {
+    const userId = req.params.id;
+    res.send(`Your user id is ${userId}`)
+})
 app.listen(PORT,() => {
     console.log("Server running at 3000 port")
 });
