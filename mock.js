@@ -32,6 +32,8 @@ app.put("/",(req,res) => {
     res.json(requestBody);
 })
 app.delete("/users/:id",(req,res) => {
+    // you can write anything after users/:${anything}
+    // and console it console.log(req.params.anything);
     const userId = req.params.id;
     res.send(`Your user id is ${userId}`);
 })
