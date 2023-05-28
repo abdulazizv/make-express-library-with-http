@@ -1,110 +1,30 @@
-// const http = require('http');
-//
-// function express() {
-//     const app = {
-//         routes: [],
-//         use: function (middleware) {
-//             this.routes.push({ method: 'USE', middleware });
-//         },
-//         get: function (path, handler) {
-//             this.routes.push({ method: 'GET', path, handler });
-//         },
-//         post: function (path, handler) {
-//             this.routes.push({ method: 'POST', path, handler });
-//         },
-//         put: function (path, handler) {
-//             this.routes.push({ method: 'PUT', path, handler });
-//         },
-//         delete: function (path, handler) {
-//             this.routes.push({ method: 'DELETE', path, handler });
-//         },
-//         listen: function (port, callback) {
-//             const server = http.createServer((req, res) => {
-//                 let requestBody = '';
-//
-//                 req.on('data', (chunk) => {
-//                     requestBody += chunk;
-//                 });
-//
-//                 req.on('end', () => {
-//                     req.body = requestBody;
-//
-//                     const matchingRoutes = this.routes.filter(
-//                         (route) =>
-//                             (route.method === 'USE' || route.method === req.method) &&
-//                             (route.path === req.url || route.path === '*')
-//                     );
-//
-//                     let i = 0;
-//                     function next() {
-//                         const route = matchingRoutes[i++];
-//                         if (route) {
-//                             if (route.method === 'USE') {
-//                                 route.middleware(req, res, next);
-//                             } else {
-//                                 let statusCode = 200;
-//                                 let responseBody = '';
-//
-//                                 res.status = (status) => {
-//                                     statusCode = status;
-//                                     return res;
-//                                 };
-//
-//                                 res.send = (body) => {
-//                                     if (typeof body === 'object') {
-//                                         res.setHeader('Content-Type', 'application/json');
-//                                         responseBody = JSON.stringify(body);
-//                                     } else {
-//                                         res.setHeader('Content-Type', 'text/plain');
-//                                         responseBody = body;
-//                                     }
-//
-//                                     res.statusCode = statusCode;
-//                                     res.end(responseBody);
-//                                 };
-//
-//                                 route.handler(req, res);
-//                             }
-//                         }
-//                     }
-//
-//                     next();
-//                 });
-//             });
-//
-//             server.listen(port, callback);
-//         },
-//     };
-//
-//     return app;
-// }
-//
-// module.exports = express;
-
 const http = require('http');
 const url = require('url');
+const querystring = require('querystring');
 
 function express() {
     const app = {
         routes: [],
         use: function (middleware) {
-            this.routes.push({ method: 'USE', middleware });
+            this.routes.push({method: 'USE', middleware});
         },
         get: function (path, handler) {
-            this.routes.push({ method: 'GET', path, handler });
+            this.routes.push({method: 'GET', path, handler});
         },
         post: function (path, handler) {
-            this.routes.push({ method: 'POST', path, handler });
+            this.routes.push({method: 'POST', path, handler});
         },
         put: function (path, handler) {
-            this.routes.push({ method: 'PUT', path, handler });
+            this.routes.push({method: 'PUT', path, handler});
         },
         delete: function (path, handler) {
-            this.routes.push({ method: 'DELETE', path, handler });
+            this.routes.push({method: 'DELETE', path, handler});
         },
         listen: function (port, callback) {
             const server = http.createServer((req, res) => {
-                const { pathname } = url.parse(req.url, true);
+                const {pathname} = url.parse(req.url, true);
+                const parsedUrl = url.parse(req.url, true);
+                req.query = parsedUrl.query;
 
                 let requestBody = '';
 
@@ -113,7 +33,11 @@ function express() {
                 });
 
                 req.on('end', () => {
-                    req.body = requestBody;
+                    try {
+                        req.body = JSON.parse(requestBody);
+                    } catch (error) {
+                        req.body = {};
+                    }
 
                     const matchingRoutes = this.routes.filter(
                         (route) =>
@@ -122,15 +46,15 @@ function express() {
                     );
 
                     let i = 0;
+
                     function next() {
                         const route = matchingRoutes[i++];
                         if (route) {
                             if (route.method === 'USE') {
                                 route.middleware(req, res, next);
                             } else {
-                                const { params } = matchPath(route.path, pathname);
-                                req.params = params;
-
+                                const {params} = matchPath(route.path, pathname)
+                                req.params = params
                                 let statusCode = 200;
                                 let responseBody = '';
 
@@ -152,6 +76,14 @@ function express() {
                                     res.end(responseBody);
                                 };
 
+                                // const { pathname } = parsedUrl;
+                                // const routeParams = extractParams(route.path, pathname);
+                                // if (routeParams) {
+                                //     req.params = routeParams;
+                                // } else {
+                                //     req.params = {};
+                                // }
+
                                 route.handler(req, res);
                             }
                         }
@@ -164,10 +96,8 @@ function express() {
             server.listen(port, callback);
         },
     };
-
-    return app;
+    return app
 }
-
 function matchPath(routePath, pathname) {
     const routePathSegments = routePath.split('/');
     const pathnameSegments = pathname.split('/');
@@ -192,6 +122,5 @@ function matchPath(routePath, pathname) {
 
     return { match: true, params };
 }
-
 module.exports = express;
 

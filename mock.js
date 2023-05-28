@@ -11,7 +11,8 @@ const getData = async (url) => {
 
 // app.use(() => {})
 app.get("/",(req,res) => {
-    return res.status(200).send("Hello world");
+    console.log(JSON.stringify(req.query));
+    res.status(200).send("Hello world");
 })
 app.post("/",async (req,res) => {
         const data = await getData("https://jsonplaceholder.typicode.com/users/1");
@@ -23,19 +24,19 @@ app.post("/",async (req,res) => {
 })
 app.put("/",(req,res) => {
     const requestBody = req.body;
-    res.send(requestBody)
+    res.send(requestBody);
 })
 app.delete("/users/:id",(req,res) => {
     const userId = req.params.id;
-    res.send(`Your user id is ${userId}`)
+    res.send(`Your user id is ${userId}`);
 })
 app.listen(PORT,() => {
     console.log("Server running at 3000 port")
 });
 /*
-req.body
-req.params
-req.query
+req.body worked ✅
+req.params worked ✅
+req.query worked ✅
 req.headers
  */
 // res.send("")
